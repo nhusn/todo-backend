@@ -11,9 +11,9 @@ router.get("/message",(req,res)=>{
 
 router.post("/add",toDoController.addToListController)
 
-router.delete('/delete',toDoController.deleteToDoController)
+router.post('/delete',toDoController.deleteToDoController)
 
-router.put('/update',toDoController.updateToDoController)
+router.post('/update',toDoController.updateToDoController)
 
 router.get('/all-todos',toDoController.getAllToDoController)
 
