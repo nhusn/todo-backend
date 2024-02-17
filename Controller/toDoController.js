@@ -20,7 +20,7 @@ exports.addToListController = async (req, res) => {
 exports.deleteToDoController = async (req, res) => {
   const { _id } = req.body;
   try {
-    const result = await todo.deleteOne({ _id });
+    const result = await todo.findByIdAndDelete({ _id });
     return res.status(200).json(result);
   } catch (error) {
     return res.status(401).json(error);
@@ -51,7 +51,12 @@ exports.getToDoByDateController = async (req, res) => {
     const result = await todo.aggregate([
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          _id: {
+            created: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            },
+            todo: "$todo",
+          },
           count: { $sum: 1 },
         },
       },
@@ -89,8 +94,6 @@ exports.getOneToDoController = async (req, res) => {
   const { _id } = req.body;
   try {
     const result = await todo.findOne({ _id });
-    console.log(result.createdDate);
-    // console.log(result.capitalizedTodo);
     res.status(200).json(result.capitalizedTodo);
   } catch (error) {
     return res.status(401).json(error);

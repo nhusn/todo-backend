@@ -19,14 +19,5 @@ const toDoSchema = new Schema(
 toDoSchema.virtual("capitalizedTodo").get(function () {
   return this.todo.toUpperCase();
 });
-
-// toDoSchema.virtual('createdDate').get(function() {
-//     return this.createdAt.toDateString();
-// });
-
-// toDoSchema.virtual('createdTime').get(function() {
-//     return this.createdAt.toTimeString().split(' ')[0];
-// });
-
 const todo = model("todo", toDoSchema);
 module.exports = todo;
