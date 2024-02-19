@@ -2,13 +2,15 @@ const todo = require("../Model/todoModel");
 
 exports.addToListController = async (req, res) => {
   const { item } = req.body;
+  const { _id } = req.payload;
   try {
-    const existingToDo = await todo.findOne({ todo: item });
+    const existingToDo = await todo.findOne({ todo: item, userId: _id });
     if (existingToDo) {
       return res.status(404).json("todo already exist");
     }
     const newToDo = new todo({
       todo: item,
+      userId: _id,
     });
     await newToDo.save();
     return res.status(200).json(newToDo);
@@ -18,9 +20,10 @@ exports.addToListController = async (req, res) => {
 };
 
 exports.deleteToDoController = async (req, res) => {
-  const { _id } = req.body;
+  const { item } = req.body;
+  const { _id } = req.payload;
   try {
-    const result = await todo.findByIdAndDelete({ _id });
+    const result = await todo.deleteOne({ todo: item, userId: _id });
     return res.status(200).json(result);
   } catch (error) {
     return res.status(401).json(error);
@@ -29,8 +32,12 @@ exports.deleteToDoController = async (req, res) => {
 
 exports.updateToDoController = async (req, res) => {
   const { item, _id } = req.body;
+  const userDetails = req.payload;
   try {
-    const result = await todo.updateOne({ _id }, { todo: item });
+    const result = await todo.updateOne(
+      { _id, userId: userDetails._id },
+      { todo: item }
+    );
     return res.status(200).json(result);
   } catch (error) {
     return res.status(401).json(error);
@@ -38,8 +45,9 @@ exports.updateToDoController = async (req, res) => {
 };
 
 exports.getAllToDoController = async (req, res) => {
+  const { _id } = req.payload;
   try {
-    const result = await todo.find();
+    const result = await todo.find({ userId: _id });
     return res.status(200).json(result);
   } catch (error) {
     return res.status(401).json(error);
@@ -47,8 +55,16 @@ exports.getAllToDoController = async (req, res) => {
 };
 
 exports.getToDoByDateController = async (req, res) => {
+  const { _id } = req.payload;
   try {
     const result = await todo.aggregate([
+      {
+        $match: {
+          userId: {
+            $eq: _id,
+          },
+        },
+      },
       {
         $group: {
           _id: {
@@ -84,8 +100,9 @@ exports.getToDoByDateController = async (req, res) => {
 
 exports.statusUpdaterController = async (req, res) => {
   const { id } = req.body;
+  const { _id } = req.payload;
   try {
-    const todoItem = await todo.findOne({ _id: id });
+    const todoItem = await todo.findOne({ _id: id, userId: _id });
     todoItem.completed = !todoItem.completed;
     await todoItem.save();
     return res.status(200).json(todoItem);
@@ -96,9 +113,11 @@ exports.statusUpdaterController = async (req, res) => {
 
 exports.limitToDoContoller = async (req, res) => {
   const { page } = req.body;
+  const { _id } = req.payload;
+  console.log(_id);
   try {
     const skip = page * 5;
-    const result = await todo.find().skip(skip).limit(5);
+    const result = await todo.find({ userId: _id }).skip(skip).limit(5);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(401).json(error);
@@ -107,8 +126,9 @@ exports.limitToDoContoller = async (req, res) => {
 
 exports.getOneToDoController = async (req, res) => {
   const { _id } = req.body;
+  const userDetails = req.payload
   try {
-    const result = await todo.findOne({ _id });
+    const result = await todo.findOne({ _id,userId:userDetails._id });
     res.status(200).json(result.capitalizedTodo);
   } catch (error) {
     return res.status(401).json(error);

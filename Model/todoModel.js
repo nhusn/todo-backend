@@ -1,7 +1,4 @@
 const { Schema, model } = require("mongoose");
-const moment = require("moment-timezone");
-
-const date = new Date().toLocaleDateString("sv-SE");
 
 const toDoSchema = new Schema(
   {
