@@ -52,12 +52,27 @@ exports.getToDoByDateController = async (req, res) => {
       {
         $group: {
           _id: {
-            created: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            day: {
+              $dayOfMonth: "$createdAt",
             },
-            todo: "$todo",
+            month: {
+              $month: "$createdAt",
+            },
+            year: {
+              $year: "$createdAt",
+            },
           },
-          count: { $sum: 1 },
+          todos: {
+            $push: "$$ROOT",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $project: {
+          "todos.todo": 1,
         },
       },
     ]);

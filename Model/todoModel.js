@@ -5,6 +5,10 @@ const date = new Date().toLocaleDateString("sv-SE");
 
 const toDoSchema = new Schema(
   {
+    userId: {
+      type: String,
+      required: true,
+    },
     todo: {
       type: String,
     },
