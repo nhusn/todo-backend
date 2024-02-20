@@ -25,11 +25,9 @@ exports.loginController = async (req, res) => {
   try {
     const result = await user.findOne({ email, password });
     if (!result) {
-      res
-        .status(200)
-        .json("User not found.Please check your username and password");
+      return res.status(200).json("User not found,Please check your username and password");
     }
-    const token = jwt.sign({ result }, process.env.JWT_SECRET_KEY);
+    const token = jwt.sign({ result }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
     res.status(200).json(token);
   } catch (error) {
     res.status(401).json(error);
