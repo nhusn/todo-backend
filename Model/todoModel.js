@@ -20,5 +20,6 @@ const toDoSchema = new Schema(
 toDoSchema.virtual("capitalizedTodo").get(function () {
   return this.todo.toUpperCase();
 });
+
 const todo = model("todo", toDoSchema);
 module.exports = todo;

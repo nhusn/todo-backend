@@ -1,6 +1,7 @@
 const user = require("../Model/userModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 
 exports.userRegisterController = async (req, res) => {
   const { email, password } = req.body;
@@ -23,9 +24,10 @@ exports.userRegisterController = async (req, res) => {
 exports.loginController = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const result = await user.findOne({ email, password });
-    if (!result) {
-      return res.status(200).json("User not found,Please check your username and password");
+    const result = await user.findOne({ email });
+    const hash = bcrypt.compareSync(password, result?.password);
+    if (!result || !hash) {
+      return res.status(404).json("User not found,Please check your username and password");
     }
     const token = jwt.sign({ result }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
     res.status(200).json(token);
