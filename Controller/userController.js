@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 exports.userRegisterController = async (req, res) => {
   const { email, password } = req.body;
   try {
+    // throw "hi"
     const existingUser = await user.findOne({ email });
     if (existingUser) {
       res.status(200).json("User already registered");
@@ -15,23 +16,25 @@ exports.userRegisterController = async (req, res) => {
       password,
     });
     await newUser.save();
-    res.status(200).json(newUser);
+    return res.status(200).json(newUser);
   } catch (error) {
-    res.status(401).json(error);
+    return res.status(400).json(error);
   }
 };
 
 exports.loginController = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const result = await user.findOne({ email });
-    const hash = bcrypt.compareSync(password, result?.password);
-    if (!result || !hash) {
-      return res.status(404).json("User not found,Please check your username and password");
+    const existingUser = await user.findOne({ email });
+    if (existingUser) {
+      const isMatch = bcrypt.compareSync(password, existingUser.password);
+      if (isMatch) {
+        const token = jwt.sign({ existingUser }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+        return res.status(200).json(token);
+      }
     }
-    const token = jwt.sign({ result }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
-    res.status(200).json(token);
+    return res.status(400).json("User not found,Please check your username and password");
   } catch (error) {
-    res.status(401).json(error);
+    return res.status(400).json(error);
   }
 };
