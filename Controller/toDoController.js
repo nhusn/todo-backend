@@ -13,9 +13,9 @@ exports.addToListController = async (req, res) => {
 
 exports.deleteToDoController = async (req, res) => {
   const { item } = req.body;
-  const { _id } = req.userDetails;
+  const { _id:userId } = req.userDetails;
   try {
-    const deletedTodo = await todo.deleteOne({ todo: item, userId: _id });
+    const deletedTodo = await todo.deleteOne({ todo: item, userId });
     return res.status(200).json(deletedTodo);
   } catch (error) {
     return res.status(400).json(error);
@@ -35,9 +35,9 @@ exports.updateToDoController = async (req, res) => {
 };
 
 exports.getAllToDoController = async (req, res) => {
-  const { _id } = req.userDetails;
+  const { _id:userId } = req.userDetails;
   try {
-    const allTodos = await todo.find({ userId: _id });
+    const allTodos = await todo.find({userId});
     return res.status(200).json(allTodos);
   } catch (error) {
     return res.status(400).json(error);
@@ -90,9 +90,9 @@ exports.getToDoByDateController = async (req, res) => {
 
 exports.statusUpdaterController = async (req, res) => {
   const { id } = req.body;
-  const userDetails = req.userDetails;
+  const { _id:userId} = req.userDetails;
   try {
-    const todoItem = await todo.findOne({ _id: id, userId: userDetails._id });
+    const todoItem = await todo.findOne({ _id: id, userId });
     todoItem.completed = !todoItem.completed;
     await todoItem.save();
     return res.status(200).json(todoItem);
@@ -103,10 +103,10 @@ exports.statusUpdaterController = async (req, res) => {
 
 exports.limitToDoContoller = async (req, res) => {
   const { page } = req.body;
-  const { _id } = req.userDetails;
+  const { _id:userId } = req.userDetails;
   try {
     const skip = page * 5;
-    const todoPagination = await todo.find({ userId: _id }).skip(skip).limit(5);
+    const todoPagination = await todo.find({ userId }).skip(skip).limit(5);
     return res.status(200).json(todoPagination);
   } catch (error) {
     return res.status(400).json(error);
@@ -115,9 +115,9 @@ exports.limitToDoContoller = async (req, res) => {
 
 exports.getOneToDoController = async (req, res) => {
   const { _id } = req.body;
-  const userDetails = req.userDetails;
+  const {_id:userId} = req.userDetails;
   try {
-    const oneTodo = await todo.findOne({ _id, userId: userDetails._id });
+    const oneTodo = await todo.findOne({ _id, userId });
     res.status(200).json(oneTodo.capitalizedTodo);
   } catch (error) {
     return res.status(400).json(error);
