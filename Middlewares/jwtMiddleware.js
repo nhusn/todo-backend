@@ -5,9 +5,12 @@ const jwtMiddleware = (req, res, next) => {
     const token = req.headers["authorization"].split(" ")[1];
     const jwtResponse = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.userDetails = jwtResponse.existingUser;
-    next();
+    return next();
   } catch (error) {
-    res.status(401).json("Authorization failed!!! please login");
+    if (error.name === "TokenExpiredError"){
+      return res.status(400).json("Your token was expired");
+    }
+    res.status(401).json("Invalid token");
   }
 };
 module.exports = jwtMiddleware;

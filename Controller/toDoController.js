@@ -2,25 +2,13 @@ const todo = require("../Model/todoModel");
 
 exports.addToListController = async (req, res) => {
   const todoItem = req.body;
-  const userDetails = req.userDetails;
-
-  const isAdded = await updateOrAdd(todoItem, userDetails);
-  return isAdded[1] === 200 ? res.status(200).json(isAdded[0]) : res.status(400).json(isAdded);
-
-  // try {
-  //   const existingToDo = await todo.findOne({ todo: item, userId: _id });
-  //   if (existingToDo) {
-  //     return res.status(400).json("todo already exist");
-  //   }
-  //   const newToDo = new todo({
-  //     todo: item,
-  //     userId: _id,
-  //   });
-  //   await newToDo.save();
-  //   return res.status(200).json(newToDo);
-  // } catch (error) {
-  //   return res.status(400).json(error);
-  // }
+  const userId = req.userDetails._id;
+  try {
+    const isAdded = await updateOrAdd(todoItem, userId);
+    return res.status(200).json(isAdded);
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 };
 
 exports.deleteToDoController = async (req, res) => {
@@ -36,19 +24,14 @@ exports.deleteToDoController = async (req, res) => {
 
 exports.updateToDoController = async (req, res) => {
   const todoItem = req.body;
-  const userDetails = req.userDetails;
+  const userId = req.userDetails._id;
 
-  const isUpdated = await updateOrAdd(todoItem, userDetails);
-  return isUpdated[1] === 200 ? res.status(200).json(isUpdated[0]) : res.status(400).json(isUpdated[0]);
-  // try {
-  //   const result = await todo.updateOne(
-  //     { _id, userId: userDetails._id },
-  //     { todo: item }
-  //   );
-  //   return res.status(200).json(result);
-  // } catch (error) {
-  //   return res.status(400).json(error);
-  // }
+  try {
+    const isUpdated = await updateOrAdd(todoItem, userId);
+    return res.status(200).json(isUpdated);
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 };
 
 exports.getAllToDoController = async (req, res) => {
@@ -141,20 +124,14 @@ exports.getOneToDoController = async (req, res) => {
   }
 };
 
-const updateOrAdd = async (toDoDetails, userDetails) => {
-  try {
-    const newTodo = await todo.updateOne(
-      toDoDetails._id
-        ? { _id: toDoDetails._id, userId: userDetails._id }
-        : { userId: userDetails._id, todo: toDoDetails.item },
-      { userId: userDetails._id, todo: toDoDetails.item },
-      { upsert: true }
-    );
-    return [newTodo, 200];
-  } catch (error) {
-    return [error]
-  }
+const updateOrAdd = async (toDoDetails, userId) => {
+  const newTodo = await todo.updateOne(
+    toDoDetails._id ? { _id: toDoDetails._id } : { userId, todo: toDoDetails.item },
+    { userId, todo: toDoDetails.item },
+    { upsert: true }
+  );
+  return newTodo;
 };
 
 //  ? { _id: toDoDetails._id, userId: userDetails._id  }
-// : { userId: userDetails._id, todo: toDoDetails.item },
+// : { userId, todo: toDoDetails.item },
