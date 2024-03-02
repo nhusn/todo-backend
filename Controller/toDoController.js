@@ -152,7 +152,7 @@ const updateOrAdd = async (toDoDetails, userDetails) => {
     );
     return [newTodo, 200];
   } catch (error) {
-    return error
+    return [error]
   }
 };
 
